@@ -1,0 +1,35 @@
+
+static void getLightOn(char* msg);
+static void getLightOff(char* msg);
+static void getNightLightOn(char* msg);
+static void getWhiteLightOn(char* msg);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void getLightOn(char* msg){
+  strcpy(msg, "\x31\x00\x00\x08\x04\x01\x00\x00\x00");
+}
+
+void getLightOff(char* msg){
+  strcpy(msg, "\x31\x00\x00\x08\x04\x02\x00\x00\x00");
+}
+
+void getNightLightOn(char* msg){
+  strcpy(msg, "\x31\x00\x00\x08\x04\x05\x00\x00\x00");
+}
+
+void getWhiteLightOn(char* msg){
+  strcpy(msg, "\x31\x00\x00\x08\x05\x64\x00\x00\x00");
+}
