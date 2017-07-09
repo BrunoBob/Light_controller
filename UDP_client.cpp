@@ -4,6 +4,7 @@
 #define DEFAULT_IP "192.168.1.53"
 #define DEFAULT_PORT 5987
 #define test "\x20\x00\x00\x00\x16\x02\x62\x3A\xD5\xED\xA3\x01\xAE\x08\x2D\x46\x61\x41\xA7\xF6\xDC\xAF\xD3\xE6\x00\x00\x1E"
+#define test2 "\x20\x11\x00\x00\x16\x02\x62\x3A\xD5\xED\xA3\x01\xAE\x08\x2D\x46\x61\x41\xA7\xF6\xDC\xAF\xD3\xE6\x00\x00\x1E"
 
 UDP_client::UDP_client(const char* hostname, int port){
 	this->hostname = hostname;
@@ -35,6 +36,12 @@ UDP_client::~UDP_client(){
 }
 
 int UDP_client::write(void* msg, int size){
+	int i;
+	printf("\nUDP send : " );
+	for(i = 0 ; i < size ; i++){
+		printf("%0x - ", ((Byte*)msg)[i]);
+	}
+	printf("\n");
 	if(sendto(sock, msg, size, 0, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0){
     fprintf(stderr, "Error sending message %s\n", (char*)msg);
     return 1;
@@ -43,27 +50,27 @@ int UDP_client::write(void* msg, int size){
 }
 
 int UDP_client::read(void* msg, int size, socklen_t* sizeRcv){
+	int  i;
+	printf("\nUDP receive : " );
 	if((recvfrom(sock, msg, size, 0, (struct sockaddr *)&sin, sizeRcv)) < 0){
     fprintf(stderr, "Error reading message\n");
     exit(EXIT_FAILURE);
 	}
+	for(i = 0 ; i < size ; i++){
+		printf("%0x - ", ((Byte*)msg)[i]);
+	}
+	printf("\n");
 }
 
 
 int main(){
 	UDP_client client(DEFAULT_IP, DEFAULT_PORT);
-	char* msg = (char*)malloc(1000*sizeof(char));
-	Light_command::getSessionIdRequest(msg);
-	client.write(msg, 27);
-	char* buffer = (char*)malloc(1000*sizeof(char));
-	Byte* buffer2 = (Byte*)malloc(1000*sizeof(char));
+	Light_command light;
+	Byte id1, id2;
 
-	socklen_t len;
-	client.read(buffer2, 1000, &len);
-	int i;
-	for(i = 0 ; i < len ; i++){
-		printf("%0x\t", (Byte)buffer2[i]);
-	}
-	printf("\n");
+	light.getSessionId(client, &id1, &id2);
+
+	printf("%d - %d\n", id1, id2);
+
 	return 0;
 }

@@ -12,8 +12,6 @@
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 
-typedef unsigned char Byte;
-
 class UDP_client{
 
 public:
