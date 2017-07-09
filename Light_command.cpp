@@ -1,8 +1,5 @@
 #include "Light_command.h"
 
-#define SESSION_ID_REQUEST "\x20\x00\x00\x00\x16\x02\x62\x3A\xD5\xED\xA3\x01\xAE\x08\x2D\x46\x61\x41\xA7\xF6\xDC\xAF\xD3\xE6\x00\x00\x1E"
-
-
 Light_command::Light_command(){
 
 }
@@ -14,13 +11,17 @@ Light_command::~Light_command(){
 
 
 
-//Get table of commands
+//Get Byte array of commands
 
 Byte* Light_command::getSessionIdRequest(){
 	Byte* command = (Byte*)SESSION_ID_REQUEST;
 	return command;
 }
 
+Byte* Light_command::getCommandLightOn(){
+	Byte* command = (Byte*)COMMAND_LIGHT_ON;
+	return command;
+}
 
 
 //Send commands
