@@ -1,4 +1,5 @@
-#include"UDP_client.h"
+#include "UDP_client.h"
+#include "Light_command.h"
 
 #define DEFAULT_IP "192.168.1.53"
 #define DEFAULT_PORT 5987
@@ -51,7 +52,9 @@ int UDP_client::read(void* msg, int size, socklen_t* sizeRcv){
 
 int main(){
 	UDP_client client(DEFAULT_IP, DEFAULT_PORT);
-	client.write((char*)test, 27);
+	char* msg = (char*)malloc(1000*sizeof(char));
+	Light_command::getSessionIdRequest(msg);
+	client.write(msg, 27);
 	char* buffer = (char*)malloc(1000*sizeof(char));
 	Byte* buffer2 = (Byte*)malloc(1000*sizeof(char));
 
