@@ -13,28 +13,46 @@ Light_command::~Light_command(){
 
 //Get Byte array of commands
 
-Byte* Light_command::getSessionIdRequest(){
-	Byte* command = (Byte*)SESSION_ID_REQUEST;
+string Light_command::getSessionIdRequest(){
+	string command(SESSION_ID_REQUEST,27);
 	return command;
 }
 
-Byte* Light_command::getCommandLightOn(){
-	Byte* command = (Byte*)COMMAND_LIGHT_ON;
+string Light_command::getRequestHeader(){
+	string command(REQUEST_HEADER,5);
+	return command;
+}
+
+string Light_command::getCommandLightOn(){
+	string command(COMMAND_LIGHT_ON,9);
 	return command;
 }
 
 
 //Send commands
 
-void Light_command::getSessionId(UDP_client client, Byte* id1, Byte* id2){
+string Light_command::getSessionId(UDP_client* client){
 	socklen_t len;
 
-	Byte* msg =	getSessionIdRequest();
-	client.write(msg, 27);
+	string msg =	getSessionIdRequest();
+	client->write(msg, 27);
 
-	Byte* buffer = (Byte*)malloc(100*sizeof(char));
-	client.read(buffer, 22, &len);
+	len = 0;
+	char* buffer = (char*)malloc(100*sizeof(char));
+	client->read(buffer, 22, &len);
 
-	*id1 = buffer[19];
-	*id2 = buffer[20];
+	char id[2];
+	id[0] = buffer[19];
+	id[1] = buffer[20];
+
+	string ID(id, 2);
+	return ID;
+}
+
+void Light_command::printString(string msg, int size){
+	int i;
+	for(i = 0 ; i < size ; i++){
+		printf("%0x - ", (Byte)msg.c_str()[i]);
+	}
+	printf("\n");
 }

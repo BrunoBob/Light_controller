@@ -3,8 +3,6 @@
 
 #define DEFAULT_IP "192.168.1.53"
 #define DEFAULT_PORT 5987
-#define test "\x20\x00\x00\x00\x16\x02\x62\x3A\xD5\xED\xA3\x01\xAE\x08\x2D\x46\x61\x41\xA7\xF6\xDC\xAF\xD3\xE6\x00\x00\x1E"
-#define test2 "\x20\x11\x00\x00\x16\x02\x62\x3A\xD5\xED\xA3\x01\xAE\x08\x2D\x46\x61\x41\xA7\xF6\xDC\xAF\xD3\xE6\x00\x00\x1E"
 
 UDP_client::UDP_client(const char* hostname, int port){
 	this->hostname = hostname;
@@ -35,15 +33,16 @@ UDP_client::~UDP_client(){
 	close(sock);
 }
 
-int UDP_client::write(void* msg, int size){
+int UDP_client::write(string msg, int size){
 	int i;
+	const char* c_msg = msg.c_str();
 	printf("\nUDP send : " );
 	for(i = 0 ; i < size ; i++){
-		printf("%0x - ", ((Byte*)msg)[i]);
+		printf("%0x - ", ((Byte*)c_msg)[i]);
 	}
 	printf("\n");
-	if(sendto(sock, msg, size, 0, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0){
-    fprintf(stderr, "Error sending message %s\n", (char*)msg);
+	if(sendto(sock, c_msg, size, 0, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0){
+    fprintf(stderr, "Error sending message message : %s\n", strerror(errno));
     return 1;
 	}
 	return 0;
@@ -51,12 +50,13 @@ int UDP_client::write(void* msg, int size){
 
 int UDP_client::read(void* msg, int size, socklen_t* sizeRcv){
 	int  i;
+	size_t readSize;
 	printf("\nUDP receive : " );
-	if((recvfrom(sock, msg, size, 0, (struct sockaddr *)&sin, sizeRcv)) < 0){
-    fprintf(stderr, "Error reading message\n");
+	if((readSize = recvfrom(sock, msg, size, 0, (struct sockaddr *)&sin, sizeRcv)) < 0){
+    fprintf(stderr, "Error reading message : %s\n", strerror(errno));
     exit(EXIT_FAILURE);
 	}
-	for(i = 0 ; i < size ; i++){
+	for(i = 0 ; i < readSize ; i++){
 		printf("%0x - ", ((Byte*)msg)[i]);
 	}
 	printf("\n");
@@ -68,9 +68,17 @@ int main(){
 	Light_command light;
 	Byte id1, id2;
 
-	light.getSessionId(client, &id1, &id2);
+	string id = light.getSessionId(&client);
+	light.printString(id, 2);
 
-	printf("%d - %d\n", id1, id2);
-
+	const char* seq = "\x00\x01\x00";
+	string SEQ(seq,3);
+	const char* end = "\x00\x00\x54";
+	string END(end,3);
+	string test;
+	test = light.getRequestHeader() + id + SEQ + light.getCommandLightOn() + END;
+	light.printString(test,22);
+	client.write(test,22);
+	usleep(1000*1000);
 	return 0;
 }
