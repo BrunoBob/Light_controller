@@ -73,7 +73,7 @@ int main(){
 
 	const char* seq = "\x00\x01\x00";
 	string SEQ(seq,3);
-	const char* end = "\x00\x00\x54";
+	const char* end = "\x00\x00\x3E";
 	string END(end,3);
 	string test;
 	test = light.getRequestHeader() + id + SEQ + light.getCommandLightOn() + END;
