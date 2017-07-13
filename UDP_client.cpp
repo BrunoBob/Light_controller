@@ -37,10 +37,7 @@ int UDP_client::write(string msg, int size){
 	int i;
 	const char* c_msg = msg.c_str();
 	printf("\nUDP send : " );
-	for(i = 0 ; i < size ; i++){
-		printf("%0x - ", ((Byte*)c_msg)[i]);
-	}
-	printf("\n");
+	printMsg((void*)c_msg, size);
 	if(sendto(sock, c_msg, size, 0, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0){
     fprintf(stderr, "Error sending message message : %s\n", strerror(errno));
     return 1;
@@ -56,7 +53,12 @@ int UDP_client::read(void* msg, int size, socklen_t* sizeRcv){
     fprintf(stderr, "Error reading message : %s\n", strerror(errno));
     exit(EXIT_FAILURE);
 	}
-	for(i = 0 ; i < readSize ; i++){
+	printMsg(msg, readSize);
+}
+
+void UDP_client::printMsg(void* msg, int size){
+	int i;
+	for(i = 0 ; i < size ; i++){
 		printf("%0x - ", ((Byte*)msg)[i]);
 	}
 	printf("\n");
@@ -66,19 +68,20 @@ int UDP_client::read(void* msg, int size, socklen_t* sizeRcv){
 int main(){
 	UDP_client client(DEFAULT_IP, DEFAULT_PORT);
 	Light_command light;
-	Byte id1, id2;
 
-	string id = light.getSessionId(&client);
-	light.printString(id, 2);
-
-	const char* seq = "\x00\x01\x00";
-	string SEQ(seq,3);
-	const char* end = "\x00\x00\x3E";
-	string END(end,3);
-	string test;
-	test = light.getRequestHeader() + id + SEQ + light.getCommandLightOn() + END;
-	light.printString(test,22);
-	client.write(test,22);
+	light.sendCmd(&client, 2, 0, 2, 0);
 	usleep(1000*1000);
+	light.sendCmd(&client, 1, 0, 3, 0);
+	usleep(1000*1000);
+	light.sendCmd(&client, 4, 0, 4, 0);
+
+	int i;
+	for(i = 0 ; i < 256 ; i++){
+		printf("%d\n", i);
+		usleep(1000*10);
+		light.sendCmd(&client, 5, i, i, 0);
+	}
+
+	light.sendCmd(&client, 4, 0, 4, 0);
 	return 0;
 }

@@ -26,6 +26,8 @@ public:
 	int write(string msg, int size);
 	int read(void* msg, int size, socklen_t* sizeRcv);
 
+	void printMsg(void* msg, int size);
+
 private:
 	int sock;
 	struct sockaddr_in sin;
